@@ -88,7 +88,7 @@
                 <div class="glass-card p-5 rounded-2xl group">
                     <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Utilisateurs</p>
                     <div class="flex justify-between items-end">
-                        <h3 class="text-3xl font-black text-white leading-none">2</h3>
+                        <h3 class="text-3xl font-black text-white leading-none">{{ $totalUsers }}</h3>
                         <div class="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-[#059669]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
