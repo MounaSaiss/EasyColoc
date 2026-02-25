@@ -19,11 +19,16 @@
                 <p class="text-gray-400 text-sm mt-2">La gestion simplifiée de votre colocation.</p>
             </div>
             <div class="bg-white rounded-2xl p-8 shadow-2xl">
+                @if(session('error'))
+                <div class="bg-red-100 text-red-700 p-3 rounded">
+                    {{ session('error') }}
+                </div>
+                @endif
                 <form action="{{ route('login') }}" method="POST" class="space-y-6">
                     @csrf
                     <div>
                         <label class="block text-xs font-bold text-[#064e3b] uppercase tracking-wider mb-2">Adresse Email</label>
-                        <input type="email" name="email" required 
+                        <input type="email" name="email" required
                             class="w-full border-2 border-gray-100 rounded-xl px-4 py-3 text-black focus:border-[#064e3b] outline-none transition">
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>

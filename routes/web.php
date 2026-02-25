@@ -1,19 +1,23 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('/userDashboard', function () {
-    return view('user.userDashboard');
-})->middleware(['auth', 'verified'])->name('user.dashboard');
+Route::middleware(['auth', 'banned'])->group(function () {
+    Route::get('/userDashboard', function () {
+        return view('user.userDashboard');
+    })->name('user.dashboard');
 
-Route::get('/adminDashboard', function () {
-    return view('admin.adminDashboard');
-})->middleware(['auth', 'verified'])->name('admin.dashboard');
+    Route::get('/adminDashboard', function () {
+        return view('admin.adminDashboard');
+    })->name('admin.dashboard');
+});
+
 
 
 Route::middleware('auth')->group(function () {
@@ -22,4 +26,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

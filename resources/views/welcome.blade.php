@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EasyColoc - Gérez vos dépenses en toute sérénité</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-[#0a0a0a] text-white font-sans antialiased">
 
     <nav class="flex items-center justify-between px-8 py-6 border-b border-zinc-900 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-50">
@@ -16,14 +18,39 @@
             <a href="#features" class="hover:text-white transition">Fonctionnalités</a>
             <a href="#reputation" class="hover:text-white transition">Réputation</a>
         </div>
-        <div>
+        <div class="flex items-center gap-2">
             @if (Route::has('login'))
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-[#059669] hover:text-white transition">Tableau de bord</a>
-                @else
-                    <a href="{{ route('login') }}" class="text-gray-400 hover:text-white mr-6 transition">Connexion</a>
-                    <a href="{{ route('register') }}" class="bg-[#064e3b] text-white px-6 py-2 rounded-full font-bold hover:bg-[#059669] transition shadow-lg shadow-green-900/20">Nous rejoindre</a>
-                @endauth
+            @auth
+            {{-- Groupe Connecté : Tableau de Bord + Déconnexion --}}
+            <div class="flex items-center gap-4">
+                <a href="{{ url('/dashboard') }}"
+                    class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#059669] hover:text-white transition-all duration-300 shadow-sm border border-zinc-100 whitespace-nowrap">
+                    Tableau de bord
+                </a>
+
+                <form method="POST" action="{{ route('logout') }}" class="flex items-center">
+                    @csrf
+                    <button type="submit"
+                        class="group flex items-center gap-2 px-2 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-red-500 transition-all duration-300">
+                        <svg class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span class="hidden sm:inline">Déconnexion</span>
+                    </button>
+                </form>
+            </div>
+            @else
+            {{-- Groupe Invité : Connexion + Inscription --}}
+            <div class="flex items-center gap-6">
+                <a href="{{ route('login') }}" class="text-xs font-bold text-gray-400 hover:text-white transition uppercase tracking-widest">
+                    Connexion
+                </a>
+                <a href="{{ route('register') }}"
+                    class="bg-[#064e3b] text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#059669] transition shadow-lg shadow-green-900/20">
+                    Nous rejoindre
+                </a>
+            </div>
+            @endauth
             @endif
         </div>
     </nav>
@@ -98,4 +125,5 @@
     </footer>
 
 </body>
+
 </html>
