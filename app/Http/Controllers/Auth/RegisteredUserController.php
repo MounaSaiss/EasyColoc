@@ -15,8 +15,6 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
 
-    protected $redirectTo = '/login';
-
     /**
      * Display the registration view.
      */
@@ -42,6 +40,6 @@ class RegisteredUserController extends Controller
         ]);
         event(new Registered($user));
         Auth::login($user);
-        return redirect($this->redirectTo);
+            return redirect()->route('user.dashboard');
     }
 }

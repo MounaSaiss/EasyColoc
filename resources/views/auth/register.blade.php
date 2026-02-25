@@ -45,8 +45,6 @@
                     <p class="text-gray-500 font-medium">Entrez vos détails pour commencer l'expérience.</p>
                 </div>
 
-
-
                 <form action="{{ route('register') }}" method="POST" class="space-y-6">
                     @csrf
 
