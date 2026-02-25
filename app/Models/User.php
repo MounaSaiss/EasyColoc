@@ -21,7 +21,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
+    public static function defaultRole(): string
+    {
+        return self::exists() ? 'user' : 'admin';
+    }
 
     /**
      * The attributes that should be hidden for serialization.

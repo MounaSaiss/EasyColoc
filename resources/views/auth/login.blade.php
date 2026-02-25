@@ -43,6 +43,10 @@
                         <span>Créer mon accès colocataire</span>
                         <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                     </a>
+                    <br>
+                    <a href="{{ route('home') }}" class="group inline-flex items-center text-[#064e3b] font-bold hover:text-[#065f46] transition">
+                        <span>Retour à l'accueil</span>
+                    </a>
                 </div>
             </div>
         </div>
