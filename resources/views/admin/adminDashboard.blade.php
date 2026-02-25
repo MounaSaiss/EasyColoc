@@ -100,7 +100,7 @@
                 <div class="glass-card p-5 rounded-2xl group">
                     <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Colocations</p>
                     <div class="flex justify-between items-end">
-                        <h3 class="text-3xl font-black text-white leading-none">0</h3>
+                        <h3 class="text-3xl font-black text-white leading-none">{{ $totalColocations }}</h3>
                         <div class="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-zinc-500 group-hover:text-[#059669]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -112,7 +112,7 @@
                 <div class="glass-card p-5 rounded-2xl group">
                     <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Bannis</p>
                     <div class="flex justify-between items-end">
-                        <h3 class="text-3xl font-black text-white leading-none">0</h3>
+                        <h3 class="text-3xl font-black text-white leading-none">{{ $userBanned }}</h3>
                         <div class="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-red-900/50 group-hover:text-red-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728A9 9 0 115.636 5.636m12.728 12.728L5.636 5.636"></path>
