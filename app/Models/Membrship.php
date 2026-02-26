@@ -18,6 +18,6 @@ class Membrship extends Model
         return $this->belongsTo(User::class);
     }
     public function colocation(){
-        return $this->belongsTo(Colocation::class);
+        return $this->belongsTo(Colocation::class , 'colocation_id');
     }
 }

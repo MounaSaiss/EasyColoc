@@ -77,6 +77,19 @@
         </aside>
 
         <main class="flex-1 p-6">
+            {{-- Affichage des messages de succès --}}
+            @if(session('success'))
+            <div class="bg-green-600 text-white px-4 py-2 rounded mb-4">
+                {{ session('success') }}
+            </div>
+            @endif
+
+            {{-- Affichage des messages d'erreur --}}
+            @if(session('error'))
+            <div class="bg-red-600 text-white px-4 py-2 rounded mb-4">
+                {{ session('error') }}
+            </div>
+            @endif
             <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h2 class="text-[10px] font-black text-[#059669] uppercase tracking-widest mb-1">Mes espaces</h2>

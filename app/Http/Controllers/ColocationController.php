@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use App\Http\Requests\ColocationRequest;
 use App\Models\Colocation;
 use App\Models\Membrship;
@@ -13,6 +12,14 @@ class ColocationController extends Controller
 {
     public function store(ColocationRequest $request): RedirectResponse
     {
+        $activeMembership = Membrship::where('user_id', Auth::id())
+            ->whereHas('colocation', function ($query) {
+                $query->where('type', 'active');
+            })
+            ->first();
+        if ($activeMembership) {
+            return redirect()->back()->with('error', 'Vous êtes déjà membre d\'une colocation active');
+        }
         $data = $request->validated();
         $colocation = Colocation::create([
             'name' => $data['name'],
