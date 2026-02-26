@@ -32,7 +32,7 @@
                     </svg>
                     Dashboard
                 </a>
-                <a href="{{ route('colocation') }}" class="flex items-center gap-3 bg-[#064e3b] text-white px-3 py-2 rounded-lg font-bold text-xs transition">
+                <a href="{{ route('colocation.list') }}" class="flex items-center gap-3 bg-[#064e3b] text-white px-3 py-2 rounded-lg font-bold text-xs transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
@@ -77,51 +77,161 @@
         </aside>
 
         <main class="flex-1 p-6">
-            {{-- Affichage des messages de succès --}}
+
+            {{-- Message succès --}}
             @if(session('success'))
             <div class="bg-green-600 text-white px-4 py-2 rounded mb-4">
                 {{ session('success') }}
             </div>
             @endif
 
-            {{-- Affichage des messages d'erreur --}}
+            {{-- Message erreur --}}
             @if(session('error'))
             <div class="bg-red-600 text-white px-4 py-2 rounded mb-4">
                 {{ session('error') }}
             </div>
             @endif
+
             <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h2 class="text-[10px] font-black text-[#059669] uppercase tracking-widest mb-1">Mes espaces</h2>
-                    <h1 class="text-xl font-extrabold tracking-tight uppercase">Mes colocations</h1>
+                    <h2 class="text-[10px] font-black text-[#059669] uppercase tracking-widest mb-1">
+                        Mes espaces
+                    </h2>
+                    <h1 class="text-xl font-extrabold tracking-tight uppercase">
+                        Mes colocations
+                    </h1>
                 </div>
 
-                <button type="button" onclick="toggleModal()" class="bg-[#064e3b] hover:bg-[#059669] text-white px-4 py-2.5 rounded-lg font-bold text-xs transition-all flex items-center gap-2 w-fit">
+                <button type="button"
+                    onclick="toggleModal()"
+                    class="bg-[#064e3b] hover:bg-[#059669] text-white px-4 py-2.5 rounded-lg font-bold text-xs transition-all flex items-center gap-2 w-fit">
+
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
                     </svg>
+
                     Nouvelle colocation
                 </button>
             </header>
 
-            <div class="mt-20 flex flex-col items-center justify-center text-center">
-                <div class="w-16 h-16 bg-zinc-900/50 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800">
-                    <svg class="w-8 h-8 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
+
+            {{-- Liste des colocations --}}
+            @if(isset($colocations) && $colocations->count() > 0)
+
+            <div class="grid md:grid-cols-3 gap-6">
+
+                @foreach($colocations as $colocation)
+
+                @php
+                $membership = $colocation->users
+                ->where('id', auth()->id())
+                ->first();
+                @endphp
+
+                <div class="bg-[#111111] border border-zinc-800 rounded-2xl p-5 hover:border-[#059669] transition-all">
+
+                    <div class="flex items-center justify-between mb-4">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-10 h-10 rounded-xl bg-[#064e3b] flex items-center justify-center font-bold text-sm">
+                                {{ strtoupper(substr($colocation->name, 0, 1)) }}
+                            </div>
+
+                            <div>
+                                <h3 class="text-sm font-bold uppercase">
+                                    {{ $colocation->name }}
+                                </h3>
+
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest">
+                                    {{ $colocation->users->count() }} membres
+                                </p>
+
+                                {{-- ROLE AUTH USER (via memberships pivot) --}}
+                                @if($membership)
+                                <div class="mt-2">
+                                    @if($membership->pivot->role === 'owner')
+                                    <span class="text-[9px] bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full font-bold uppercase flex items-center gap-1 w-fit">
+                                        <!-- Crown -->
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5 16h10l1-8-4 3-2-5-2 5-4-3 1 8z" />
+                                        </svg>
+                                        Owner
+                                    </span>
+                                    @else
+                                    <span class="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full font-bold uppercase flex items-center gap-1 w-fit">
+                                        <!-- User -->
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-6 8a6 6 0 1112 0H4z" />
+                                        </svg>
+                                        Member
+                                    </span>
+                                    @endif
+                                </div>
+                                @endif
+
+                            </div>
+                        </div>
+
+                        {{-- Badge status --}}
+                        @if($colocation->type === 'cancelled')
+                        <span class="text-[9px] bg-red-500/20 text-red-400 px-2 py-1 rounded-full font-bold uppercase">
+                            Cancelled
+                        </span>
+                        @else
+                        <span class="text-[9px] bg-green-500/20 text-green-400 px-2 py-1 rounded-full font-bold uppercase">
+                            Active
+                        </span>
+                        @endif
+
+                    </div>
+
+                    <div class="flex justify-between items-center mt-6 text-xs text-zinc-400">
+
+                        <span>
+                            Dépenses : {{ $colocation->expenses->count() }}
+                        </span>
+
+                        @if($colocation->type !== 'cancelled')
+                        <a href="{{ route('colocation.show', $colocation->id) }}"
+                            class="w-8 h-8 flex items-center justify-center bg-[#064e3b] rounded-full hover:bg-[#059669] transition">
+                            →
+                        </a>
+                        @else
+                        <span
+                            class="w-8 h-8 flex items-center justify-center bg-zinc-700 text-zinc-500 rounded-full cursor-not-allowed opacity-50">
+                            →
+                        </span>
+                        @endif
+
+                    </div>
+
                 </div>
 
-                <h3 class="text-sm font-bold uppercase tracking-tight text-white">Aucune colocation active</h3>
+                @endforeach
+
+            </div>
+
+            @else
+
+            <div class="mt-20 flex flex-col items-center justify-center text-center">
+
+                <div class="w-16 h-16 bg-zinc-900/50 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800">
+                    <!-- Ton SVG ici -->
+                </div>
+
+                <h3 class="text-sm font-bold uppercase tracking-tight text-white">
+                    Aucune colocation
+                </h3>
+
                 <p class="text-zinc-500 text-xs mt-2 max-w-[280px] leading-relaxed">
-                    Vous n'avez pas encore créé ou rejoint de colocation. Cliquez sur le bouton en haut pour commencer.
+                    Vous n'avez pas encore créé ou rejoint de colocation.
                 </p>
 
-                <div class="mt-8 flex gap-4">
-                    <div class="h-[1px] w-8 bg-zinc-800 self-center"></div>
-                    <span class="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em]">EasyColoc System</span>
-                    <div class="h-[1px] w-8 bg-zinc-800 self-center"></div>
-                </div>
             </div>
+
+            @endif
+
         </main>
     </div>
 

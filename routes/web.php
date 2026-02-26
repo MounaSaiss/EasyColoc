@@ -25,6 +25,13 @@ Route::get('/colocations/{colocation}', function ($colocation) {
     return view('colocation.colocationShow', compact('colocation'));
 })->name('colocation.show');
 
+Route::get('/colocations', [ColocationController::class, 'list'])
+    ->name('colocation.list');
+
+Route::patch('/colocations/{colocation}/cancel',
+    [ColocationController::class, 'cancel'])
+    ->name('colocation.cancel');
+
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {
         return view('user.userDashboard');

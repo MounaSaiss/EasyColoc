@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\ColocationRequest;
 use App\Models\Colocation;
 use App\Models\Membrship;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class ColocationController extends Controller
@@ -38,9 +39,25 @@ class ColocationController extends Controller
     }
     public function index()
     {
-        $colocation = Colocation::with('user') 
+        $colocation = Colocation::with('user')
             ->where('user_id', Auth::id())
             ->first();
         return view('colocation.colocationShow', compact('colocation'));
+    }
+    public function list()
+    {
+        $colocations = Auth::user()
+            ->colocations;
+        return view('colocation.colocationCreate', compact('colocations'));
+    }
+    public function cancel(Colocation $colocation)
+    {
+        $colocation->update([
+            'type' => 'cancelled'
+        ]);
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }
