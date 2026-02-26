@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'banned' => \App\Http\Middleware\CheckIfBanned::class,
+            'isAdmin' => \App\Http\Middleware\CheckIfAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

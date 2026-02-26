@@ -124,7 +124,7 @@
                 <div class="glass-card p-5 rounded-2xl border-l-2 border-orange-500/30">
                     <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Impayées</p>
                     <div class="flex justify-between items-end">
-                        <h3 class="text-2xl font-black text-white leading-none">0.00 <span class="text-xs text-orange-500">DH</span></h3>
+                        <h3 class="text-2xl font-black text-white leading-none">{{ $totalImpayes }} <span class="text-xs text-orange-500">DH</span></h3>
                         <div class="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-orange-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3 1.343 3 3-1.343 3-3 3m0-13a9 9 0 110 18 9 9 0 010-18z"></path>
@@ -154,36 +154,56 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-900/50">
-                            <tr class="hover:bg-zinc-900/20 transition-all">
-                                <td class="px-8 py-5">
+                            @foreach($users as $user)
+                            <tr class="hover:bg-zinc-900/10 transition-all">
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center font-bold text-white border border-zinc-700 text-xs">H</div>
-                                        <span class="font-bold text-zinc-200">hamza</span>
+                                        <div class="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center font-bold text-white text-xs border border-zinc-700">
+                                            {{ strtoupper(substr($user->name,0,1)) }}
+                                        </div>
+                                        <span class="font-semibold text-zinc-200">{{ $user->name }}</span>
                                     </div>
                                 </td>
-                                <td class="px-8 py-5 text-zinc-500 text-[12px]">hamza@gmail.com</td>
-                                <td class="px-8 py-5 text-zinc-500 text-center">25/02/2026</td>
-                                <td class="px-8 py-5 text-center">
-                                    <span class="px-3 py-1 bg-[#059669]/10 text-[#059669] rounded-lg text-[10px] font-black uppercase tracking-tighter border border-[#059669]/10">Actif</span>
+
+                                <td class="px-6 py-4 text-zinc-400 text-[12px]">{{ $user->email }}</td>
+
+                                <td class="px-6 py-4 text-center text-zinc-400 text-[12px]">
+                                    {{ $user->created_at?->format('d/m/Y') ?? 'N/A' }}
                                 </td>
-                                <td class="px-8 py-5 text-right">
-                                    <button class="px-4 py-1.5 bg-red-500/5 text-red-500 rounded-md text-[10px] font-black uppercase border border-red-500/10 hover:bg-red-500 hover:text-white transition-all">Bannir</button>
+
+                                <td class="px-6 py-4 text-center">
+                                    @if($user->isBanned)
+                                    <span class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-tighter border border-red-200">
+                                        Banni
+                                    </span>
+                                    @elseif($user->role === 'admin')
+                                    <span class="px-3 py-1 bg-[#059669] text-white rounded-lg text-[10px] font-bold uppercase tracking-tighter shadow-md shadow-[#059669]/20">
+                                        Protégé
+                                    </span>
+                                    @else
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold uppercase tracking-tighter border border-green-200">
+                                        Actif
+                                    </span>
+                                    @endif
+                                </td>
+
+                                <td class="px-6 py-4 text-right">
+                                    @if($user->role !== 'admin')
+                                    <form action="{{ route($user->isBanned ? 'admin.users.unban' : 'admin.users.ban', $user) }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="px-4 py-1.5 rounded-md text-[10px] font-bold uppercase border transition-all
+                            {{ $user->isBanned ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-600 hover:text-white' 
+                                            : 'bg-red-100 text-red-600 border-red-200 hover:bg-red-600 hover:text-white' }}">
+                                            {{ $user->isBanned ? 'Débannir' : 'Bannir' }}
+                                        </button>
+                                    </form>
+                                    @else
+                                    <span class="text-zinc-500 italic text-[10px] font-bold">Système</span>
+                                    @endif
                                 </td>
                             </tr>
-                            <tr class="bg-zinc-900/10">
-                                <td class="px-8 py-5 font-bold text-zinc-200">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-[#059669]/20 rounded-lg flex items-center justify-center font-bold text-[#059669] border border-[#059669]/20 text-xs">A</div>
-                                        <span class="font-bold">admin</span>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5 text-zinc-500 text-[12px]">admin@gmail.com</td>
-                                <td class="px-8 py-5 text-zinc-500 text-center">25/02/2026</td>
-                                <td class="px-8 py-5 text-center">
-                                    <span class="px-3 py-1 bg-[#059669] text-white rounded-lg text-[10px] font-black uppercase shadow-lg shadow-[#059669]/20">Protégé</span>
-                                </td>
-                                <td class="px-8 py-5 text-right text-zinc-600 italic text-[10px] font-bold">Système</td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
