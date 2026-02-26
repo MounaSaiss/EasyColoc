@@ -5,10 +5,18 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ColocationController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/colocations', function () {
+    return view('colocation.colocationCreate');
+})->name('colocation');
+
+Route::post('/colocations', [ColocationController::class, 'store'])
+    ->name('colocation.store');
 
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {

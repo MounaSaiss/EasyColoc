@@ -28,6 +28,16 @@ class User extends Authenticatable
         return self::exists() ? 'user' : 'admin';
     }
 
+    public function memberships(){
+        return $this->hasMany(Membrship::class);
+    }
+    public function colocations(){
+        return $this->belongsTo(Colocation::class,'memberships')
+        ->withPivot('role','joinedAt','leftAt')
+        ->withTimestamps();
+    }
+
+
     /**
      * The attributes that should be hidden for serialization.
      *
