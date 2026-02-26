@@ -11,12 +11,19 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+//show colocation creation form
 Route::get('/colocations', function () {
     return view('colocation.colocationCreate');
 })->name('colocation');
 
+//store colocation data in database
 Route::post('/colocations', [ColocationController::class, 'store'])
     ->name('colocation.store');
+
+//show colocation after creation
+Route::get('/colocations/{colocation}', function ($colocation) {
+    return view('colocation.colocationShow', compact('colocation'));
+})->name('colocation.show');
 
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {
@@ -32,7 +39,7 @@ Route::get('/adminDashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'banned', 'isAdmin'])
     ->name('admin.dashboard');
 
-Route::middleware(['auth', 'isAdmin'])->group(function() {
+Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/admin/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
     Route::post('/admin/users/{user}/ban', [UserController::class, 'ban'])->name('admin.users.ban');
     Route::post('/admin/users/{user}/unban', [UserController::class, 'unban'])->name('admin.users.unban');
@@ -46,4 +53,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
-

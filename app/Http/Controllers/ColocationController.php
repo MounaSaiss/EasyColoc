@@ -33,7 +33,14 @@ class ColocationController extends Controller
             'leftAt' => null,
         ]);
         return redirect()
-            ->route('colocation.store')
+            ->route('colocation.show', ['colocation' => $colocation->id])
             ->with('success', 'Colocation créée avec succès');
+    }
+    public function index()
+    {
+        $colocation = Colocation::with('user') 
+            ->where('user_id', Auth::id())
+            ->first();
+        return view('colocation.colocationShow', compact('colocation'));
     }
 }
