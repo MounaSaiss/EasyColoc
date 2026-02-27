@@ -8,6 +8,13 @@ use App\Models\Colocation;
 use App\Models\Membrship;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\InviteUserMail;
+use App\Models\Invitation;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Mail\Mailable;
+use App\Mail\InvitationMail;
 
 class ColocationController extends Controller
 {
@@ -37,11 +44,8 @@ class ColocationController extends Controller
             ->route('colocation.show', ['colocation' => $colocation->id])
             ->with('success', 'Colocation créée avec succès');
     }
-    public function index()
+    public function index(Colocation $colocation)
     {
-        $colocation = Colocation::with('user')
-            ->where('user_id', Auth::id())
-            ->first();
         return view('colocation.colocationShow', compact('colocation'));
     }
     public function list()
@@ -53,11 +57,38 @@ class ColocationController extends Controller
     public function cancel(Colocation $colocation)
     {
         $colocation->update([
-            'type' => 'cancelled'
+            'type' => 'cancelled',
         ]);
 
         return response()->json([
-            'success' => true
+            'success' => true,
+            'message' => 'La colocation a été annulée avec succès !',
+        ]);
+    }
+    public function invite(Request $request, Colocation $colocation)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+        $token = Str::random(32);
+        $invitation = $colocation->invitations()->create([
+            'email' => $request->email,
+            'token' => $token,
+            'status' => 'pending',
+        ]);
+        try {
+            Mail::to($request->email)->send(
+                new InvitationMail($invitation)
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Invitation envoyée !'
         ]);
     }
 }

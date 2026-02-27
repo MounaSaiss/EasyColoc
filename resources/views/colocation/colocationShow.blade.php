@@ -83,13 +83,15 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-red-500/20">
+                    <button
+                        class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-red-500/20"
+                        onclick="cancelColocation({{ $colocation->id }})">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                         Annuler la colocation
                     </button>
-                    <a href="{{ route('colocation.show', $colocation) }}" class="bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-zinc-800">
+                    <a href="{{ route('colocation.colocationShow', $colocation) }}" class="bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-zinc-800">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
@@ -173,7 +175,7 @@
                         </div>
 
                         <div class="p-4 bg-black/20 mt-4">
-                            <button class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2">
+                            <button onclick="toggleInviteModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                 </svg>
@@ -186,6 +188,131 @@
             </div>
         </main>
     </div>
+    <div id="inviteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleInviteModal()"></div>
+
+        <div class="relative bg-[#0a0a0a] border border-zinc-800 w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden transform transition-all">
+            <div class="p-8">
+                <div class="mb-6">
+                    <h2 class="text-xl font-black text-white uppercase italic tracking-tighter">
+                        Inviter un <span class="text-[#059669]">membre</span>
+                    </h2>
+                    <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mt-1">Agrandissez votre colocation</p>
+                </div>
+
+                <form id="inviteForm-{{ $colocation->id }}" class="space-y-5">
+                    @csrf
+
+                    <div>
+                        <label class="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-1">
+                            Email du membre
+                        </label>
+
+                        <input type="email"
+                            name="email"
+                            placeholder="exemple@email.com"
+                            required
+                            class="w-full bg-black border border-zinc-800 focus:border-[#059669] rounded-xl px-4 py-3 text-sm text-white outline-none">
+
+                        <p class="mt-2 text-[9px] text-zinc-600 italic px-1">
+                            Un email sera envoyé avec un lien d'invitation.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="button"
+                            onclick="sendInvitation({{ $colocation->id }})"
+                            class="flex-1 bg-[#064e3b] hover:bg-[#059669] text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
+                            Envoyer l'invitation
+                        </button>
+
+                        <button type="button"
+                            onclick="toggleInviteModal()"
+                            class="px-4 py-3 text-zinc-500 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all">
+                            Annuler
+                        </button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleInviteModal() {
+            document.getElementById('inviteModal').classList.toggle('hidden');
+        }
+
+        function sendInvitation(colocationId) {
+            const form = document.getElementById('inviteForm-' + colocationId);
+            const email = form.email.value;
+
+            if (!email) {
+                alert('Veuillez entrer un email');
+                return;
+            }
+
+            // Construire dynamiquement l'URL de l'invitation
+            const url = `/colocations/${colocationId}/invite`;
+
+            fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email
+                    })
+                })
+                .then(async res => {
+                    if (!res.ok) {
+                        // Lire la réponse brute pour voir l'erreur complète
+                        const text = await res.text();
+                        throw new Error(text);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    form.reset();
+                    toggleInviteModal();
+                })
+                .catch(err => {
+                    console.error('Erreur invitation:', err);
+                    alert('Erreur : ' + err.message);
+                });
+        }
+
+        function cancelColocation(colocationId) {
+            if (!confirm("Voulez-vous vraiment annuler cette colocation ?")) return;
+
+            fetch(`/colocations/${colocationId}/cancel`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(async res => {
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(text);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    const url = "{{ route('colocation.list', ':colocation') }}".replace(':colocation', colocationId);
+                    window.location.href = url;
+                })
+                .catch(err => {
+                    console.error('Erreur:', err);
+                    alert('Erreur lors de l\'annulation.');
+                });
+        }
+    </script>
 </body>
 
 </html>
