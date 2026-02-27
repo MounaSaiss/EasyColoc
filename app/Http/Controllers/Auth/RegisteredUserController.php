@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
+use App\Models\Invitation;
 
 class RegisteredUserController extends Controller
 {
@@ -40,6 +41,21 @@ class RegisteredUserController extends Controller
         ]);
         event(new Registered($user));
         Auth::login($user);
-            return redirect()->route('user.dashboard');
+        if ($request->session()->has('invitation_token')) {
+            $token = $request->session()->get('invitation_token');
+            $invitation = Invitation::where('token', $token)->first();
+            if ($invitation && $invitation->status === 'pending') {
+                $user->colocations()->attach($invitation->colocation_id, [
+                    'role' => 'member',
+                    'joinedAt' => now(),
+                    'leftAt' => null,
+                ]);
+                $invitation->update(['status' => 'accepted']);
+                $request->session()->forget('invitation_token');
+                return redirect()->route('colocation.colocationShow', $invitation->colocation_id)
+                    ->with('success', 'Votre compte a été créé et vous avez rejoint la colocation !');
+            }
+        }
+        return redirect()->route('user.dashboard');
     }
 }

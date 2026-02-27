@@ -193,7 +193,7 @@
                         </span>
 
                         @if($colocation->type !== 'cancelled')
-                        <a href="{{ route('colocation.show', $colocation->id) }}"
+                        <a href="{{ route('colocation.colocationShow', $colocation->id) }}"
                             class="w-8 h-8 flex items-center justify-center bg-[#064e3b] rounded-full hover:bg-[#059669] transition">
                             →
                         </a>

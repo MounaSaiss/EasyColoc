@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ColocationController;
+use App\Http\Controllers\InvitationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,9 +29,20 @@ Route::get('/colocations/{colocation}', function ($colocation) {
 Route::get('/colocations', [ColocationController::class, 'list'])
     ->name('colocation.list');
 
-Route::patch('/colocations/{colocation}/cancel',
-    [ColocationController::class, 'cancel'])
+Route::get('/colocations/{colocation}', [ColocationController::class, 'index'])
+    ->name('colocation.colocationShow');
+
+// Accepter l'invitation
+Route::get('/invitation/accept/{token}', [InvitationController::class, 'accept'])->name('invitation.accept');
+
+// Refuser l'invitation
+Route::get('/invitation/reject/{token}', [InvitationController::class, 'reject'])->name('invitation.reject');
+
+Route::patch('/colocations/{colocation}/cancel', [ColocationController::class, 'cancel'])
     ->name('colocation.cancel');
+
+Route::post('/colocations/{colocation}/invite', [ColocationController::class, 'invite'])
+    ->name('colocation.invite');
 
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {
@@ -41,6 +53,7 @@ Route::middleware(['auth', 'banned'])->group(function () {
         return view('admin.adminDashboard');
     })->name('admin.dashboard');
 });
+
 
 Route::get('/adminDashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'banned', 'isAdmin'])
