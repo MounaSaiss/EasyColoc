@@ -37,11 +37,11 @@ class InvitationController extends Controller
     public function reject($token)
     {
         $invitation = Invitation::where('token', $token)->firstOrFail();
-        if ($invitation->status === 'refused') {
+        if ($invitation->status !== 'refused') {
             $invitation->update(['status' => 'refused']);
         }
 
-        $message = ['success', 'Invitation rejetée.'];
-        return view('home', compact('message'));
+        $message = 'Invitation rejetée';
+        return view('welcome', compact('message'));
     }
 }

@@ -139,7 +139,7 @@
                         colocataires et commencez à gérer facilement vos dépenses communes.</p>
 
                     <div class="colocation-card">
-                        <span class="colocation-name">Colocation </span>
+                        <span class="colocation-name">colocation </span>
                     </div>
 
                     <p>Pour accepter cette invitation et rejoindre le groupe, veuillez cliquer sur le bouton ci-dessous :</p>

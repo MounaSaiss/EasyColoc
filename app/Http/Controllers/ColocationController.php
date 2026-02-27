@@ -46,7 +46,8 @@ class ColocationController extends Controller
     }
     public function index(Colocation $colocation)
     {
-        return view('colocation.colocationShow', compact('colocation'));
+        $expenses = $colocation->expenses()->with(['payer'])->get();
+        return view('colocation.colocationShow', compact('colocation', 'expenses'));
     }
     public function list()
     {
@@ -76,19 +77,8 @@ class ColocationController extends Controller
             'token' => $token,
             'status' => 'pending',
         ]);
-        try {
-            Mail::to($request->email)->send(
-                new InvitationMail($invitation)
-            );
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
-        return response()->json([
-            'success' => true,
-            'message' => 'Invitation envoyée !'
-        ]);
+        // dd($token);  
+        Mail::to($request->email)->send(new InvitationMail($invitation));
+        return redirect()->back();
     }
 }

@@ -10,6 +10,9 @@
 
 <body class="bg-[#0a0a0a] text-white font-sans antialiased">
 
+    @if(isset($message))
+    <div>{{$message}}</div>
+    @endif
     <nav class="flex items-center justify-between px-8 py-6 border-b border-zinc-900 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-50">
         <div class="text-2xl font-black tracking-tighter">
             EASY<span class="text-[#059669]">COLOC</span>

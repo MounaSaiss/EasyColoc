@@ -91,7 +91,7 @@
                         </svg>
                         Annuler la colocation
                     </button>
-                    <a href="{{ route('colocation.colocationShow', $colocation) }}" class="bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-zinc-800">
+                    <a href="{{ route('colocation.list') }}" class="bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-zinc-800">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
@@ -113,7 +113,7 @@
                     <div class="bg-zinc-900/20 border border-zinc-900 rounded-[2rem] p-6 shadow-sm">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-sm font-black uppercase tracking-tight text-white">Dépenses récentes</h3>
-                            <button class="bg-[#064e3b] hover:bg-[#059669] text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase transition-all flex items-center gap-2">
+                            <button onclick="toggleExpenseModal()" class="bg-[#064e3b] hover:bg-[#059669] text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase transition-all flex items-center gap-2">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
                                 </svg>
@@ -132,11 +132,24 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-800/50">
+                                    @foreach($expenses as $expense)
                                     <tr>
-                                        <td colspan="4" class="py-16 text-center text-zinc-600 italic">
-                                            Aucune dépense pour le moment.
+                                        <td class="py-4">
+                                            <div class="font-bold text-white">{{ $expense->title }}</div>
+                                        </td>
+                                        <td class="py-4 text-center">
+                                            <div class="text-[11px] font-bold text-white">{{ $expense->payer->name }}</div>
+                                        </td>
+                                        <td class="py-4 text-center">
+                                            <div class="text-[11px] font-bold text-white">{{ number_format($expense->montant, 2) }} €</div>
+                                        </td>
+                                        <td class="py-4 text-right">
+                                            <button onclick="toggleDeleteModal({{ $expense->id }})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase transition-all">
+                                                Supprimer
+                                            </button>
                                         </td>
                                     </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -200,7 +213,7 @@
                     <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mt-1">Agrandissez votre colocation</p>
                 </div>
 
-                <form id="inviteForm-{{ $colocation->id }}" class="space-y-5">
+                <form id="inviteForm-{{ $colocation->id }}" class="space-y-5" action="{{route('colocation.invite',$colocation)}}" method="post">
                     @csrf
 
                     <div>
@@ -220,8 +233,7 @@
                     </div>
 
                     <div class="flex items-center gap-3 pt-2">
-                        <button type="button"
-                            onclick="sendInvitation({{ $colocation->id }})"
+                        <button type="submit" 
                             class="flex-1 bg-[#064e3b] hover:bg-[#059669] text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
                             Envoyer l'invitation
                         </button>
@@ -238,52 +250,126 @@
         </div>
     </div>
 
+    <!-- formulaire pour ajouter un dépense  -->
+
+    <div id="expenseModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="toggleExpenseModal()"></div>
+
+        <div class="relative bg-[#0a0a0a] border border-zinc-800 w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <div class="p-8 md:p-10">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black text-white uppercase italic tracking-tighter">
+                        Nouvelle <span class="text-[#059669]">dépense</span>
+                    </h2>
+                    <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">Enregistrez un nouvel achat commun</p>
+                </div>
+
+                <form action="{{ route('expenses.store') }}" method="POST" class="space-y-6">
+                    @csrf
+                    <input type="hidden" name="colocation_id" value="{{ $colocation->id }}">
+                    <div>
+                        <label class="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-1">Titre de la dépense</label>
+                        <input type="text" name="title" placeholder="ex: Courses Intermarché" required
+                            class="w-full bg-black border border-zinc-800 focus:border-[#059669] rounded-xl px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-zinc-800">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-1">Montant (DH)</label>
+                            <input type="number" step="0.01" name="montant" placeholder="0.00" required
+                                class="w-full bg-black border border-zinc-800 focus:border-[#059669] rounded-xl px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-zinc-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-1">Date</label>
+                            <input type="date" name="dateAchat" value="{{ date('Y-m-d') }}"
+                                class="w-full bg-black border border-zinc-800 focus:border-[#059669] rounded-xl px-4 py-3 text-[12px] text-white outline-none transition-all [color-scheme:dark]">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-1">Payé par</label>
+                            <select name="user_idPayer" class="w-full bg-black border border-zinc-800 focus:border-[#059669] rounded-xl px-4 py-3 text-sm text-white outline-none transition-all appearance-none cursor-pointer">
+                                <option value="{{ auth()->user()->id }}">{{ auth()->user()->name }} (Moi)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-1">Catégorie</label>
+                            <select name="category_id" class="w-full bg-black border border-zinc-800 focus:border-[#059669] rounded-xl px-4 py-3 text-sm text-white outline-none transition-all appearance-none cursor-pointer">
+                                <option value="1">Général</option>
+                                <option value="2">Loyer</option>
+                                <option value="3">Courses</option>
+                                <option value="4">Factures</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 pt-6">
+                        <button type="submit" class="flex-1 bg-[#064e3b] hover:bg-[#059669] text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-lg shadow-[#059669]/10">
+                            Enregistrer la dépense
+                        </button>
+                        <button type="button" onclick="toggleExpenseModal()" class="px-6 py-4 text-zinc-500 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all">
+                            Annuler
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleExpenseModal() {
+            const modal = document.getElementById('expenseModal');
+            modal.classList.toggle('hidden');
+        }
+    </script>
+
     <script>
         function toggleInviteModal() {
             document.getElementById('inviteModal').classList.toggle('hidden');
         }
 
-        function sendInvitation(colocationId) {
-            const form = document.getElementById('inviteForm-' + colocationId);
-            const email = form.email.value;
+        // function sendInvitation(colocationId) {
+        //     const form = document.getElementById('inviteForm-' + colocationId);
+        //     const email = form.email.value;
 
-            if (!email) {
-                alert('Veuillez entrer un email');
-                return;
-            }
+        //     if (!email) {
+        //         alert('Veuillez entrer un email');
+        //         return;
+        //     }
 
-            // Construire dynamiquement l'URL de l'invitation
-            const url = `/colocations/${colocationId}/invite`;
+        //     // Construire dynamiquement l'URL de l'invitation
+        //     const url = `/colocations/${colocationId}/invite`;
 
-            fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email
-                    })
-                })
-                .then(async res => {
-                    if (!res.ok) {
-                        // Lire la réponse brute pour voir l'erreur complète
-                        const text = await res.text();
-                        throw new Error(text);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    alert(data.message);
-                    form.reset();
-                    toggleInviteModal();
-                })
-                .catch(err => {
-                    console.error('Erreur invitation:', err);
-                    alert('Erreur : ' + err.message);
-                });
-        }
+        //     fetch(url, {
+        //             method: 'POST',
+        //             headers: {
+        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //                 'Content-Type': 'application/json',
+        //                 'Accept': 'application/json'
+        //             },
+        //             body: JSON.stringify({
+        //                 email: email
+        //             })
+        //         })
+        //         .then(async res => {
+        //             if (!res.ok) {
+        //                 // Lire la réponse brute pour voir l'erreur complète
+        //                 const text = await res.text();
+        //                 throw new Error(text);
+        //             }
+        //             return res.json();
+        //         })
+        //         .then(data => {
+        //             alert(data.message);
+        //             form.reset();
+        //             toggleInviteModal();
+        //         })
+        //         .catch(err => {
+        //             console.error('Erreur invitation:', err);
+        //             alert('Erreur : ' + err.message);
+        //         });
+        // }
 
         function cancelColocation(colocationId) {
             if (!confirm("Voulez-vous vraiment annuler cette colocation ?")) return;
@@ -311,6 +397,11 @@
                     console.error('Erreur:', err);
                     alert('Erreur lors de l\'annulation.');
                 });
+        }
+        // use in form of add déponse 
+        function toggleExpenseModal() {
+            const modal = document.getElementById('expenseModal');
+            modal.classList.toggle('hidden');
         }
     </script>
 </body>

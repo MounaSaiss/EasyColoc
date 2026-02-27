@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\ExpenseController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,6 +44,10 @@ Route::patch('/colocations/{colocation}/cancel', [ColocationController::class, '
 
 Route::post('/colocations/{colocation}/invite', [ColocationController::class, 'invite'])
     ->name('colocation.invite');
+
+// store of expense 
+Route::post('/expenses', [ExpenseController::class, 'store'])
+    ->name('expenses.store');
 
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {
