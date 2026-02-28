@@ -11,13 +11,19 @@ class Expense extends Model
         'montant',
         'dateAchat',
         'user_idPayer',
-        'colocation_id',   
+        'colocation_id',
         'category_id',
     ];
     public function payer()
     {
         return $this->belongsTo(User::class, 'user_idPayer');
     }
-    
-    
+    public function colocation()
+    {
+        return $this->belongsTo(Colocation::class, 'colocation_id');
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 }

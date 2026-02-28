@@ -52,11 +52,15 @@ Route::post('/expenses', [ExpenseController::class, 'store'])
 //delete of user retirer from colocation
 Route::delete('/colocations/{colocation}/users/{user}', [ColocationController::class, 'removeUser'])
     ->name('colocation.removeUser');
-    
+
 //delete of expense
 Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])
     ->name('expenses.destroy');
-    
+
+//show all expenses of user
+    Route::get('/userDashboard', [UserController::class, 'listAllExpenses'])
+        ->name('user.expenses');
+
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {
         return view('user.userDashboard');
