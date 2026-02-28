@@ -10,4 +10,6 @@ Route::middleware(['auth', 'banned'])
     ->group(function () {
         Route::post('/', 'store')->name('store');
         Route::delete('/{expense}', 'destroy')->name('destroy');
+        Route::patch('/{payment}/payment', 'payment')->name('payment');
+
     });

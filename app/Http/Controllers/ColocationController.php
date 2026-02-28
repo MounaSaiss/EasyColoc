@@ -17,6 +17,7 @@ use Illuminate\Contracts\Mail\Mailable;
 use App\Mail\InvitationMail;
 use App\Models\Category;
 use App\Models\Expense;
+use App\Models\Payment;
 
 class ColocationController extends Controller
 {
@@ -30,7 +31,11 @@ class ColocationController extends Controller
     {
         $categories = Category::where('colocation_id', $colocation->id)->get();
         $expenses = $colocation->expenses()->with(['payer'])->get();
-        return view('colocation.show', compact('colocation', 'categories', 'expenses'));
+        $payments = Payment::whereNull('payed_at')
+        ->with(['user', 'expense'])
+        ->whereRelation('expense', 'colocation_id', $colocation->id)->get();
+        
+        return view('colocation.show', compact('colocation', 'categories', 'expenses', 'payments'));
     }
 
     public function store(ColocationRequest $request): RedirectResponse

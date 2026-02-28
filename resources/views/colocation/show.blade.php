@@ -231,7 +231,72 @@
                     <div class="bg-white/5 border border-zinc-900 rounded-[2rem] p-6 text-center">
                         <h3 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-6 text-left">Qui doit
                             à qui ?</h3>
-                        <p class="text-[11px] text-zinc-600 italic py-4">Aucun remboursement en attente.</p>
+                        @forelse($payments as $payment)
+                            <div
+                                class="flex flex-col bg-black/40 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors mb-3">
+
+                                <div class="flex items-center justify-between mb-4 px-1">
+
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-black text-emerald-500 border border-zinc-700 shadow-inner">
+                                            {{ strtoupper(substr($payment->user->name, 0, 2)) }}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[11px] font-bold text-white uppercase tracking-wider">
+                                                {{ $payment->user->name }}
+                                            </span>
+                                            <span class="text-[9px] text-zinc-500 uppercase">Payeur</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-emerald-400 font-black text-xs mb-1">
+                                            {{ number_format($payment->montant, 2) }} DH
+                                        </span>
+                                        <div
+                                            class="h-[1px] w-12 bg-gradient-to-r from-transparent via-zinc-700 to-transparent relative">
+                                            <span
+                                                class="absolute -top-1.5 left-1/2 -translate-x-1/2 text-zinc-600 text-[10px]">→</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3 text-right">
+                                        <div class="flex flex-col">
+                                            <span class="text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
+                                                {{ $payment->expense->payer->name }}
+                                            </span>
+                                            <span class="text-[9px] text-zinc-600 uppercase">Destinataire</span>
+                                        </div>
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center text-[10px] font-black text-zinc-500 border border-zinc-800">
+                                            {{ strtoupper(substr($payment->expense->payer->name, 0, 2)) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form action="{{ route('expenses.payment', $payment) }}" method="POST"
+                                    class="w-full">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit"
+                                        class="w-full bg-emerald-600/10 hover:bg-emerald-600 border border-emerald-600/20 hover:border-emerald-500 text-emerald-500 hover:text-white py-2.5 rounded-lg font-bold text-[10px] uppercase transition-all duration-200 active:scale-[0.98] shadow-sm">
+                                        Marquer comme payé
+                                    </button>
+                                </form>
+
+                                <div class="mt-2 text-center">
+                                    <span class="text-[8px] text-zinc-700 uppercase tracking-widest">
+                                        Motif: {{ $payment->expense->title }}
+                                    </span>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-6">
+                                <p class="text-[11px] text-zinc-600 italic">Aucun remboursement en attente.</p>
+                            </div>
+                        @endforelse
+
                     </div>
 
                     <div class="bg-zinc-900 border border-zinc-800 rounded-[2rem] overflow-hidden">
@@ -292,17 +357,19 @@
                                 @endforelse
                             </div>
                         </div>
-                        <div class="p-4 bg-black/20 mt-4">
-                            <button onclick="toggleInviteModal()"
-                                class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z">
-                                    </path>
-                                </svg>
-                                Inviter un membre
-                            </button>
-                        </div>
+                        @if ($colocation->isOwner(Auth::user()))
+                            <div class="p-4 bg-black/20 mt-4">
+                                <button onclick="toggleInviteModal()"
+                                    class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z">
+                                        </path>
+                                    </svg>
+                                    Inviter un membre
+                                </button>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- //catégories de dépenses -->
@@ -333,21 +400,23 @@
                                                 </div>
                                             </div>
 
-                                            <form action="{{ route('categories.destroy', $category->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button onclick="return confirm('Supprimer cette catégorie ?')"
-                                                    class="text-zinc-600 hover:text-red-500 transition-colors p-2">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                        </path>
-                                                    </svg>
-                                                </button>
-                                            </form>
+                                            @if ($colocation->isOwner(Auth::user()))
+                                                <form action="{{ route('categories.destroy', $category->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button onclick="return confirm('Supprimer cette catégorie ?')"
+                                                        class="text-zinc-600 hover:text-red-500 transition-colors p-2">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                            </path>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     @empty
                                         <div
@@ -358,31 +427,34 @@
                                 </div>
                             </div>
 
-                            <div class="p-4 bg-black/20 mt-4 border-t border-zinc-800/50">
-                                <p
-                                    class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3 px-1 text-center">
-                                    Ajouter une catégorie</p>
-                                <form action="{{ route('categories.store') }}" method="POST" class="space-y-2">
-                                    @csrf
-                                    <input type="hidden" name="colocation_id" value="{{ $colocation->id }}">
-                                    <div
-                                        class="flex gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
-                                        <input type="text" name="name" placeholder="Nom (ex: Loisirs)" required
-                                            class="flex-1 bg-transparent border-none focus:ring-0 px-4 py-2.5 text-[11px] font-bold text-white placeholder:text-zinc-700 outline-none transition-all">
+                            @if ($colocation->isOwner(Auth::user()))
+                                <div class="p-4 bg-black/20 mt-4 border-t border-zinc-800/50">
+                                    <p
+                                        class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3 px-1 text-center">
+                                        Ajouter une catégorie</p>
+                                    <form action="{{ route('categories.store') }}" method="POST" class="space-y-2">
+                                        @csrf
+                                        <input type="hidden" name="colocation_id" value="{{ $colocation->id }}">
+                                        <div
+                                            class="flex gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
+                                            <input type="text" name="name" placeholder="Nom (ex: Loisirs)"
+                                                required
+                                                class="flex-1 bg-transparent border-none focus:ring-0 px-4 py-2.5 text-[11px] font-bold text-white placeholder:text-zinc-700 outline-none transition-all">
 
-                                        <button type="submit"
-                                            class="bg-[#064e3b] hover:bg-[#059669] text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-[#059669]/10 flex items-center gap-2">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                    d="M12 4v16m8-8H4"></path>
-                                            </svg>
-                                            Ajouter
-                                        </button>
-                                    </div>
-                                </form>
+                                            <button type="submit"
+                                                class="bg-[#064e3b] hover:bg-[#059669] text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-[#059669]/10 flex items-center gap-2">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="3" d="M12 4v16m8-8H4"></path>
+                                                </svg>
+                                                Ajouter
+                                            </button>
+                                        </div>
+                                    </form>
 
-                            </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

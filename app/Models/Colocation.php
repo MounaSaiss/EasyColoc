@@ -15,10 +15,6 @@ class Colocation extends Model
     {
         return $this->hasMany(Membrship::class);
     }
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
     public function users()
     {
         return $this->belongsToMany(User::class, 'memberships')
@@ -36,5 +32,13 @@ class Colocation extends Model
     public function categories()
     {
         return $this->hasMany(Category::class);
+    }
+
+    public function isOwner(User $user)
+    {
+        return $this->users()
+            ->wherePivot('user_id', $user->id)
+            ->wherePivot('role', 'owner')
+            ->exists();
     }
 }
