@@ -83,14 +83,17 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button
-                        class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-red-500/20"
-                        onclick="cancelColocation({{ $colocation->id }})">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                        Annuler la colocation
-                    </button>
+                    <form action="{{ route('colocation.cancel', $colocation->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit"
+                            class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-red-500/20">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Annuler la colocation
+                        </button>
+                    </form>
                     <a href="{{ route('colocation.list') }}" class="bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-zinc-800">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -156,7 +159,7 @@
                                         <td class="py-4 text-right">
                                             <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST" class="inline">
                                                 @csrf
-                                                @method('DELETE') 
+                                                @method('DELETE')
                                                 <button type="submit"
                                                     class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase transition-all">
                                                     Supprimer
