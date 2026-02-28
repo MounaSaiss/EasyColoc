@@ -154,11 +154,14 @@
                                         </td>
 
                                         <td class="py-4 text-right">
-                                            <button
-                                                onclick="toggleDeleteModal({{ $expense->id }})"
-                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase transition-all">
-                                                Supprimer
-                                            </button>
+                                            <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE') 
+                                                <button type="submit"
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase transition-all">
+                                                    Supprimer
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     @empty

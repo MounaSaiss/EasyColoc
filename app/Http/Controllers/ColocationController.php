@@ -61,10 +61,7 @@ class ColocationController extends Controller
             'type' => 'cancelled',
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'La colocation a été annulée avec succès !',
-        ]);
+        return redirect()->back()->with('success', 'Colocation annulée avec succès');
     }
     public function invite(Request $request, Colocation $colocation)
     {

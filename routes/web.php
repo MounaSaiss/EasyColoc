@@ -53,6 +53,10 @@ Route::post('/expenses', [ExpenseController::class, 'store'])
 Route::delete('/colocations/{colocation}/users/{user}', [ColocationController::class, 'removeUser'])
     ->name('colocation.removeUser');
     
+//delete of expense
+Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])
+    ->name('expenses.destroy');
+    
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {
         return view('user.userDashboard');

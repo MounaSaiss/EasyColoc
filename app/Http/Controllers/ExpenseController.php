@@ -19,4 +19,9 @@ class ExpenseController extends Controller
         $expense = Expense::create($validatedData);
         return redirect()->back()->with('success', 'Dépense ajoutée avec succès');
     }
+    public function destroy(Expense $expense)
+    {
+        $expense->delete();
+        return redirect()->back()->with('success', 'Dépense supprimée avec succès');
+    }
 }
