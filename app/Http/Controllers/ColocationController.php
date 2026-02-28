@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Mail\Mailable;
 use App\Mail\InvitationMail;
+use App\Models\Category;
 
 class ColocationController extends Controller
 {
@@ -51,9 +52,15 @@ class ColocationController extends Controller
     }
     public function list()
     {
-        $colocations = Auth::user()
-            ->colocations;
+        $colocations = Auth::user()->colocations;
         return view('colocation.colocationCreate', compact('colocations'));
+    }
+    // récupérer les détails d'une colocation spécifique and also the categories of this colocation
+    public function show($id)
+    {
+        $colocation = Colocation::findOrFail($id);
+        $categories = Category::where('colocation_id', $colocation->id)->get();
+        return view('colocation.colocationShow', compact('colocation', 'categories'));
     }
     public function cancel(Colocation $colocation)
     {
@@ -84,7 +91,7 @@ class ColocationController extends Controller
             ->where('user_id', $user->id)
             ->first();
         if ($membership) {
-            $membership->delete();
+            $membership->update(['leftAt' => now()]);
             return redirect()->back()->with('success', 'Utilisateur retiré de la colocation avec succès');
         }
         return redirect()->back()->with('error', 'Utilisateur non trouvé dans la colocation');

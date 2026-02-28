@@ -127,8 +127,7 @@
                     <h3 class="text-sm font-bold uppercase tracking-tight">Dépenses récentes</h3>
                     <a href="#" class="text-[#059669] text-[10px] font-black hover:underline uppercase">Voir tout</a>
                 </div>
-                
-                @isset($expenses)
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
@@ -140,6 +139,7 @@
                                 <th>Colocation</th>
                             </tr>
                         </thead>
+                        @isset($expenses)
                         <tbody>
                             @forelse($expenses as $expense)
                             <tr>

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ExpenseController;
+USE App\Http\Controllers\CategoryController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -60,6 +61,11 @@ Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])
 //show all expenses of user
     Route::get('/userDashboard', [UserController::class, 'listAllExpenses'])
         ->name('user.expenses');
+// show colocation details and also the categories of this colocation
+Route::get('/colocations/{id}', [ColocationController::class, 'show'])->name('colocations.show');
+//gestion des categories
+Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {

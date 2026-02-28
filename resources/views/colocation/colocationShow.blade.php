@@ -76,6 +76,11 @@
             </form>
         </aside>
         <main class="flex-1 p-6">
+            @if(session('success'))
+            <div class="bg-green-600 text-white px-4 py-2 rounded mb-4">
+                {{ session('success') }}
+            </div>
+            @endif
             <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h2 class="text-[10px] font-black text-[#059669] uppercase tracking-widest mb-1">Vue d'ensemble</h2>
@@ -194,7 +199,7 @@
                             </div>
 
                             <div class="space-y-3">
-                                @forelse($colocation->users as $user)
+                                @forelse($colocation->users as $user )
                                 <div class="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-white/5">
 
                                     <div class="flex items-center gap-3">
@@ -236,7 +241,6 @@
                                 @endforelse
                             </div>
                         </div>
-
                         <div class="p-4 bg-black/20 mt-4">
                             <button onclick="toggleInviteModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,8 +250,76 @@
                             </button>
                         </div>
                     </div>
-                </div>
 
+                    <!-- //catégories de dépenses -->
+                    <div class="space-y-6">
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-[2rem] overflow-hidden">
+                            <div class="p-6 pb-2">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-[11px] font-black uppercase tracking-widest text-white">Catégories de dépenses</h3>
+                                    <span class="px-2 py-0.5 bg-[#059669]/10 text-[#059669] text-[8px] font-black rounded uppercase">Configurées</span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    @forelse($colocation->categories as $category)
+                                    <div class="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-white/5">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-black text-[#059669] border border-zinc-700">
+                                                {{ strtoupper(substr($category->name, 0, 2)) }}
+                                            </div>
+
+                                            <div>
+                                                <p class="text-[11px] font-black text-white uppercase">
+                                                    {{ $category->name }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <form action="{{ route('categories.destroy', $category->id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button onclick="return confirm('Supprimer cette catégorie ?')"
+                                                class="text-zinc-600 hover:text-red-500 transition-colors p-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    @empty
+                                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 text-center text-zinc-500 italic text-[11px]">
+                                        Aucune catégorie personnalisée.
+                                    </div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-black/20 mt-4 border-t border-zinc-800/50">
+                                <p class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3 px-1 text-center">Ajouter une catégorie</p>
+                                <form action="{{ route('categories.store') }}" method="POST" class="space-y-2">
+                                    @csrf
+                                    <input type="hidden" name="colocation_id" value="{{ $colocation->id }}">
+                                    <div class="flex gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
+                                        <input type="text"
+                                            name="name"
+                                            placeholder="Nom (ex: Loisirs)"
+                                            required
+                                            class="flex-1 bg-transparent border-none focus:ring-0 px-4 py-2.5 text-[11px] font-bold text-white placeholder:text-zinc-700 outline-none transition-all">
+
+                                        <button type="submit"
+                                            class="bg-[#064e3b] hover:bg-[#059669] text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-[#059669]/10 flex items-center gap-2">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -378,75 +450,6 @@
         function toggleInviteModal() {
             document.getElementById('inviteModal').classList.toggle('hidden');
         }
-
-        // function sendInvitation(colocationId) {
-        //     const form = document.getElementById('inviteForm-' + colocationId);
-        //     const email = form.email.value;
-
-        //     if (!email) {
-        //         alert('Veuillez entrer un email');
-        //         return;
-        //     }
-
-        //     // Construire dynamiquement l'URL de l'invitation
-        //     const url = `/colocations/${colocationId}/invite`;
-
-        //     fetch(url, {
-        //             method: 'POST',
-        //             headers: {
-        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-        //                 'Content-Type': 'application/json',
-        //                 'Accept': 'application/json'
-        //             },
-        //             body: JSON.stringify({
-        //                 email: email
-        //             })
-        //         })
-        //         .then(async res => {
-        //             if (!res.ok) {
-        //                 // Lire la réponse brute pour voir l'erreur complète
-        //                 const text = await res.text();
-        //                 throw new Error(text);
-        //             }
-        //             return res.json();
-        //         })
-        //         .then(data => {
-        //             alert(data.message);
-        //             form.reset();
-        //             toggleInviteModal();
-        //         })
-        //         .catch(err => {
-        //             console.error('Erreur invitation:', err);
-        //             alert('Erreur : ' + err.message);
-        //         });
-        // }
-
-        // function cancelColocation(colocationId) {
-        //     if (!confirm("Voulez-vous vraiment annuler cette colocation ?")) return;
-
-        //     fetch(`/colocations/${colocationId}/cancel`, {
-        //             method: 'PATCH',
-        //             headers: {
-        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-        //                 'Accept': 'application/json',
-        //             },
-        //         })
-        //         .then(async res => {
-        //             if (!res.ok) {
-        //                 const text = await res.text();
-        //                 throw new Error(text);
-        //             }
-        //             return res.json();
-        //         })
-        //         .then(data => {
-        //             alert(data.message);
-        //             window.location.reload();
-        //         })
-        //         .catch(err => {
-        //             console.error('Erreur:', err);
-        //             alert('Erreur lors de l\'annulation.');
-        //         });
-        // }
         // use in form of add déponse 
         function toggleExpenseModal() {
             const modal = document.getElementById('expenseModal');

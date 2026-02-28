@@ -26,7 +26,7 @@
             @auth
             {{-- Groupe Connecté : Tableau de Bord + Déconnexion --}}
             <div class="flex items-center gap-4">
-                <a href="{{ url('/dashboard') }}"
+                <a href="{{ route('user.dashboard') }}"
                     class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#059669] hover:text-white transition-all duration-300 shadow-sm border border-zinc-100 whitespace-nowrap">
                     Tableau de bord
                 </a>

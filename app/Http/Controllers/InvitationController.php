@@ -25,7 +25,7 @@ class InvitationController extends Controller
                 'role' => 'member',
                 'joinedAt' => now(),
                 'leftAt' => null,
-            ]);
+            ]); 
             $invitation->update(['status' => 'accepted']);
             return redirect()->route('colocation.colocationShow', $invitation->colocation_id)
                 ->with('success', 'Invitation acceptée ! Vous êtes maintenant membre de la colocation.');

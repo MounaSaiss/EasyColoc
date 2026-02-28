@@ -23,14 +23,13 @@ class UserController extends Controller
         $user->save();
         return redirect()->back()->with('success', 'Utilisateur débanni avec succès.');
     }
-    public function listAllExpenses()
+    public function listAllExpenses() 
     {
-        dd("Méthode appelée !");
-        // $user = Auth::user();
-        // $expenses = Expense::where('user_idPayer', $user->id)
-        //     ->with(['payer', 'colocation', 'category'])
-        //     ->orderBy('dateAchat', 'desc')
-        //     ->get();
-        // return view('user.userDashboard', compact('expenses'));
+        $user = Auth::user();
+        $expenses = Expense::where('user_idPayer', $user->id)
+            ->with(['payer', 'colocation', 'category'])
+            ->orderBy('dateAchat', 'desc')
+            ->get();
+        return view('user.userDashboard', compact('expenses'));
     }
 }
