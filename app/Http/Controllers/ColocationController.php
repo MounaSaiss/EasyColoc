@@ -81,4 +81,15 @@ class ColocationController extends Controller
         Mail::to($request->email)->send(new InvitationMail($invitation));
         return redirect()->back();
     }
+    public function removeUser(Colocation $colocation, User $user)
+    {
+        $membership = Membrship::where('colocation_id', $colocation->id)
+            ->where('user_id', $user->id)
+            ->first();
+        if ($membership) {
+            $membership->delete();
+            return redirect()->back()->with('success', 'Utilisateur retiré de la colocation avec succès');
+        }
+        return redirect()->back()->with('error', 'Utilisateur non trouvé dans la colocation');
+    }
 }

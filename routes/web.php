@@ -49,6 +49,10 @@ Route::post('/colocations/{colocation}/invite', [ColocationController::class, 'i
 Route::post('/expenses', [ExpenseController::class, 'store'])
     ->name('expenses.store');
 
+//delete of user retirer from colocation
+Route::delete('/colocations/{colocation}/users/{user}', [ColocationController::class, 'removeUser'])
+    ->name('colocation.removeUser');
+    
 Route::middleware(['auth', 'banned'])->group(function () {
     Route::get('/userDashboard', function () {
         return view('user.userDashboard');

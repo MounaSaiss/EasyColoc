@@ -131,25 +131,43 @@
                                         <th class="pb-4 text-right">Action</th>
                                     </tr>
                                 </thead>
+
                                 <tbody class="divide-y divide-zinc-800/50">
-                                    @foreach($expenses as $expense)
+                                    @forelse($expenses as $expense)
                                     <tr>
                                         <td class="py-4">
-                                            <div class="font-bold text-white">{{ $expense->title }}</div>
+                                            <div class="font-bold text-white">
+                                                {{ $expense->title }}
+                                            </div>
                                         </td>
+
                                         <td class="py-4 text-center">
-                                            <div class="text-[11px] font-bold text-white">{{ $expense->payer->name }}</div>
+                                            <div class="text-[11px] font-bold text-white">
+                                                {{ $expense->payer->name ?? 'Utilisateur inconnu' }}
+                                            </div>
                                         </td>
+
                                         <td class="py-4 text-center">
-                                            <div class="text-[11px] font-bold text-white">{{ number_format($expense->montant, 2) }} €</div>
+                                            <div class="text-[11px] font-bold text-white">
+                                                {{ number_format($expense->montant, 2) }} DH
+                                            </div>
                                         </td>
+
                                         <td class="py-4 text-right">
-                                            <button onclick="toggleDeleteModal({{ $expense->id }})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase transition-all">
+                                            <button
+                                                onclick="toggleDeleteModal({{ $expense->id }})"
+                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase transition-all">
                                                 Supprimer
                                             </button>
                                         </td>
                                     </tr>
-                                    @endforeach
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="py-6 text-center text-zinc-600 italic">
+                                            Aucune dépense enregistrée.
+                                        </td>
+                                    </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -170,20 +188,46 @@
                             </div>
 
                             <div class="space-y-3">
+                                @forelse($colocation->users as $user)
                                 <div class="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-white/5">
+
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-black text-[#059669] border border-zinc-700">
-                                            {{ substr(Auth::user()->name, 0, 1) }}
+                                            {{ strtoupper(substr($user->name, 0, 2)) }}
                                         </div>
+
                                         <div>
-                                            <p class="text-[11px] font-black text-white uppercase">{{ Auth::user()->name }}</p>
+                                            <p class="text-[11px] font-black text-white uppercase">
+                                                {{ $user->name }}
+                                            </p>
+
                                             <p class="text-[9px] text-zinc-500 font-bold flex items-center gap-1 uppercase">
-                                                <span class="text-orange-500 text-[10px]">👑</span> Owner
+                                                @if($user->pivot->role === 'owner')
+                                                <span class="text-orange-500 text-[10px]">👑</span> Propriétaire
+                                                @else
+                                                <span>👤</span> Membre
+                                                @endif
                                             </p>
                                         </div>
                                     </div>
-                                    <span class="text-[10px] font-black text-[#059669]">0 DH</span>
+                                    @if(auth()->id() === $colocation->users->firstWhere('pivot.role', 'owner')?->id
+                                    && $user->pivot->role !== 'owner')
+                                    <form action="{{ route('colocation.removeUser', [$colocation->id, $user->id]) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            onclick="return confirm('Retirer ce membre de la colocation ?')"
+                                            class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase transition-all border border-red-500/20">
+                                            Retirer
+                                        </button>
+                                    </form>
+                                    @endif
                                 </div>
+                                @empty
+                                <div class="bg-black/40 p-4 rounded-xl border border-white/5 text-center text-zinc-500 italic text-[11px]">
+                                    Aucun membre dans cette colocation.
+                                </div>
+                                @endforelse
                             </div>
                         </div>
 
@@ -233,7 +277,7 @@
                     </div>
 
                     <div class="flex items-center gap-3 pt-2">
-                        <button type="submit" 
+                        <button type="submit"
                             class="flex-1 bg-[#064e3b] hover:bg-[#059669] text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
                             Envoyer l'invitation
                         </button>
@@ -371,33 +415,32 @@
         //         });
         // }
 
-        function cancelColocation(colocationId) {
-            if (!confirm("Voulez-vous vraiment annuler cette colocation ?")) return;
+        // function cancelColocation(colocationId) {
+        //     if (!confirm("Voulez-vous vraiment annuler cette colocation ?")) return;
 
-            fetch(`/colocations/${colocationId}/cancel`, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    },
-                })
-                .then(async res => {
-                    if (!res.ok) {
-                        const text = await res.text();
-                        throw new Error(text);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    alert(data.message);
-                    const url = "{{ route('colocation.list', ':colocation') }}".replace(':colocation', colocationId);
-                    window.location.href = url;
-                })
-                .catch(err => {
-                    console.error('Erreur:', err);
-                    alert('Erreur lors de l\'annulation.');
-                });
-        }
+        //     fetch(`/colocations/${colocationId}/cancel`, {
+        //             method: 'PATCH',
+        //             headers: {
+        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //                 'Accept': 'application/json',
+        //             },
+        //         })
+        //         .then(async res => {
+        //             if (!res.ok) {
+        //                 const text = await res.text();
+        //                 throw new Error(text);
+        //             }
+        //             return res.json();
+        //         })
+        //         .then(data => {
+        //             alert(data.message);
+        //             window.location.reload();
+        //         })
+        //         .catch(err => {
+        //             console.error('Erreur:', err);
+        //             alert('Erreur lors de l\'annulation.');
+        //         });
+        // }
         // use in form of add déponse 
         function toggleExpenseModal() {
             const modal = document.getElementById('expenseModal');
