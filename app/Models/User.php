@@ -23,20 +23,32 @@ class User extends Authenticatable
         'password',
         'role',
     ];
+
     public static function defaultRole(): string
     {
         return self::exists() ? 'user' : 'admin';
     }
 
-    public function memberships(){
+    public function memberships()
+    {
         return $this->hasMany(Membrship::class);
     }
-    public function colocations(){
-        return $this->belongsToMany(Colocation::class,'memberships')
-        ->withPivot('role','joinedAt','leftAt')
-        ->withTimestamps();
+
+    public function colocations()
+    {
+        return $this->belongsToMany(Colocation::class, 'memberships')
+            ->withPivot('role', 'joinedAt', 'leftAt')
+            ->withTimestamps();
     }
 
+    public function isOwner(Colocation $colocation)
+    {
+        return $this
+            ->colocations()
+            ->wherePivot('role', 'owner')
+            ->wherePivot('colocation_id', $colocation->id)
+            ->exists();
+    }
 
     /**
      * The attributes that should be hidden for serialization.

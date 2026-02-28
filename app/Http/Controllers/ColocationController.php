@@ -16,9 +16,23 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Mail\Mailable;
 use App\Mail\InvitationMail;
 use App\Models\Category;
+use App\Models\Expense;
 
 class ColocationController extends Controller
 {
+    public function index()
+    {
+        $colocations = Auth::user()->colocations;
+        return view('colocation.index', compact('colocations'));
+    }
+
+    public function show(Colocation $colocation)
+    {
+        $categories = Category::where('colocation_id', $colocation->id)->get();
+        $expenses = $colocation->expenses()->with(['payer'])->get();
+        return view('colocation.show', compact('colocation', 'categories', 'expenses'));
+    }
+
     public function store(ColocationRequest $request): RedirectResponse
     {
         $activeMembership = Membrship::where('user_id', Auth::id())
@@ -42,34 +56,37 @@ class ColocationController extends Controller
             'leftAt' => null,
         ]);
         return redirect()
-            ->route('colocation.show', ['colocation' => $colocation->id])
+            ->route('colocations.show', ['colocation' => $colocation])
             ->with('success', 'Colocation créée avec succès');
     }
-    public function index(Colocation $colocation)
-    {
-        $expenses = $colocation->expenses()->with(['payer'])->get();
-        return view('colocation.colocationShow', compact('colocation', 'expenses'));
-    }
-    public function list()
-    {
-        $colocations = Auth::user()->colocations;
-        return view('colocation.colocationCreate', compact('colocations'));
-    }
-    // récupérer les détails d'une colocation spécifique and also the categories of this colocation
-    public function show($id)
-    {
-        $colocation = Colocation::findOrFail($id);
-        $categories = Category::where('colocation_id', $colocation->id)->get();
-        return view('colocation.colocationShow', compact('colocation', 'categories'));
-    }
+    
     public function cancel(Colocation $colocation)
     {
+        $memberships = Membrship::where('colocation_id', $colocation->id)
+            ->where('user_id', Auth::id())
+            ->where('role', 'owner')
+            ->firstOrFail();
+
+        Membrship::where('colocation_id', $colocation->id)
+            ->update(['leftAt' => now()]);
+
         $colocation->update([
             'type' => 'cancelled',
         ]);
 
-        return redirect()->route('colocation.list')->with('success', 'Colocation annulée avec succès');
+        return redirect()->route('colocations.index')->with('success', 'Colocation annulée.');
     }
+
+    public function leave(Colocation $colocation)
+    {
+        $memberships = Membrship::where('colocation_id', $colocation->id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+        $memberships->leftAt = now();
+        $memberships->save();
+        return redirect()->route('colocations.index')->with('success', 'Vous avez quitté la colocation.');
+    }
+
     public function invite(Request $request, Colocation $colocation)
     {
         $request->validate([
@@ -81,10 +98,11 @@ class ColocationController extends Controller
             'token' => $token,
             'status' => 'pending',
         ]);
-        // dd($token);  
+        
         Mail::to($request->email)->send(new InvitationMail($invitation));
         return redirect()->back();
     }
+
     public function removeUser(Colocation $colocation, User $user)
     {
         $membership = Membrship::where('colocation_id', $colocation->id)

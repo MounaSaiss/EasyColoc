@@ -23,8 +23,7 @@ class Colocation extends Model
     {
         return $this->belongsToMany(User::class, 'memberships')
             ->withPivot('role', 'joinedAt', 'leftAt')
-            ->withTimestamps()
-            ->wherePivot('leftAt', null);
+            ->withTimestamps();
     }
     public function expenses()
     {

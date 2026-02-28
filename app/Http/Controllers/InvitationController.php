@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Invitation;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Colocation;
 use App\Models\User;
-use App\Models\Membrship;
+use Illuminate\Http\Request;
 
 class InvitationController extends Controller
 {
-    public function accept($token)
+    public function accept(Request $request, $token)
     {
         $invitation = Invitation::where('token', $token)->firstOrFail();
-        // dd($invitation->id);
         if ($invitation->status !== 'pending') {
             return redirect()->route('home')
                 ->with('error', 'Cette invitation a déjà été traitée.');
@@ -25,13 +21,15 @@ class InvitationController extends Controller
                 'role' => 'member',
                 'joinedAt' => now(),
                 'leftAt' => null,
-            ]); 
+            ]);
             $invitation->update(['status' => 'accepted']);
-            return redirect()->route('colocation.colocationShow', $invitation->colocation_id)
+
+            return redirect()->route('colocations.show', $invitation->colocation)
                 ->with('success', 'Invitation acceptée ! Vous êtes maintenant membre de la colocation.');
-        } else {
-            return redirect()->route('register')->with('invitation_token', $token);
         }
+
+        $request->session()->put('invitation_token', $token);
+        return redirect()->route('register');
     }
 
     public function reject($token)
@@ -42,6 +40,7 @@ class InvitationController extends Controller
         }
 
         $message = 'Invitation rejetée';
+
         return view('welcome', compact('message'));
     }
 }

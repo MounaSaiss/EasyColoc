@@ -52,7 +52,7 @@ class RegisteredUserController extends Controller
                 ]);
                 $invitation->update(['status' => 'accepted']);
                 $request->session()->forget('invitation_token');
-                return redirect()->route('colocation.colocationShow', $invitation->colocation_id)
+                return redirect()->route('colocations.show', $invitation->colocation)
                     ->with('success', 'Votre compte a été créé et vous avez rejoint la colocation !');
             }
         }
