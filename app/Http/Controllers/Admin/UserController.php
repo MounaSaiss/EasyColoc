@@ -30,6 +30,11 @@ class UserController extends Controller
             ->with(['payer', 'colocation', 'category'])
             ->orderBy('dateAchat', 'desc')
             ->get();
-        return view('user.userDashboard', compact('expenses'));
+            
+        $unpaidAmount = \App\Models\Payment::where('user_id', $user->id)
+            ->whereNull('payed_at')
+            ->sum('montant');
+            
+        return view('user.userDashboard', compact('expenses', 'unpaidAmount'));
     }
 }

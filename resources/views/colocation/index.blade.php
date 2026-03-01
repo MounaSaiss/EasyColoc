@@ -188,7 +188,7 @@
                                     </div>
                                 </div>
 
-                                @if ($membership->pivot->leftAt !== null)
+                                @if ($membership->pivot->leftAt !== null && $colocation->type !== 'cancelled')
                                     <span
                                         class="text-[9px] bg-red-500/20 text-red-400 px-2 py-1 rounded-full font-bold uppercase">
                                         Quitté

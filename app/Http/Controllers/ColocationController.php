@@ -2,39 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\ColocationRequest;
-use App\Models\Colocation;
-use App\Models\Membrship;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use App\Mail\InviteUserMail;
-use App\Models\Invitation;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Contracts\Mail\Mailable;
 use App\Mail\InvitationMail;
 use App\Models\Category;
-use App\Models\Expense;
+use App\Models\Colocation;
+use App\Models\Membrship;
 use App\Models\Payment;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class ColocationController extends Controller
 {
     public function index()
     {
         $colocations = Auth::user()->colocations;
+
         return view('colocation.index', compact('colocations'));
     }
 
     public function show(Colocation $colocation)
     {
+        $membership = Membrship::where('colocation_id', $colocation->id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $membership || $membership->leftAt !== null) {
+            return redirect()->route('colocations.index')->with('error', 'Vous n\'avez pas accès aux détails de cette colocation.');
+        }
+
+        if ($colocation->type === 'cancelled') {
+            return redirect()->route('colocations.index')->with('error', 'Cette colocation est annulée.');
+        }
         $categories = Category::where('colocation_id', $colocation->id)->get();
         $expenses = $colocation->expenses()->with(['payer'])->get();
         $payments = Payment::whereNull('payed_at')
-        ->with(['user', 'expense'])
-        ->whereRelation('expense', 'colocation_id', $colocation->id)->get();
-        
+            ->with(['user', 'expense'])
+            ->whereRelation('expense', 'colocation_id', $colocation->id)->get();
+
         return view('colocation.show', compact('colocation', 'categories', 'expenses', 'payments'));
     }
 
@@ -60,11 +68,12 @@ class ColocationController extends Controller
             'joinedAt' => now(),
             'leftAt' => null,
         ]);
+
         return redirect()
             ->route('colocations.show', ['colocation' => $colocation])
             ->with('success', 'Colocation créée avec succès');
     }
-    
+
     public function cancel(Colocation $colocation)
     {
         $memberships = Membrship::where('colocation_id', $colocation->id)
@@ -89,7 +98,28 @@ class ColocationController extends Controller
             ->firstOrFail();
         $memberships->leftAt = now();
         $memberships->save();
-        return redirect()->route('colocations.index')->with('success', 'Vous avez quitté la colocation.');
+
+        // Check if the user has any unpaid payments in this colocation
+        $hasUnpaidPayments = Payment::where('user_id', Auth::id())
+            ->whereNull('payed_at')
+            ->whereHas('expense', function ($query) use ($colocation) {
+                $query->where('colocation_id', $colocation->id);
+            })
+            ->exists();
+
+        $user = $memberships->user;
+
+        if ($hasUnpaidPayments) {
+            $user->reputation = $user->reputation - 1;
+            $message = 'Vous avez quitté la colocation. Votre réputation a diminué à cause de paiements non réglés (-1).';
+        } else {
+            $user->reputation = $user->reputation + 1;
+            $message = 'Vous avez quitté la colocation. Félicitations pour avoir réglé tous vos paiements (+1 réputation) !';
+        }
+
+        $user->save();
+
+        return redirect()->route('colocations.index')->with('success', $message);
     }
 
     public function invite(Request $request, Colocation $colocation)
@@ -103,8 +133,9 @@ class ColocationController extends Controller
             'token' => $token,
             'status' => 'pending',
         ]);
-        
+
         Mail::to($request->email)->send(new InvitationMail($invitation));
+
         return redirect()->back();
     }
 
@@ -115,7 +146,15 @@ class ColocationController extends Controller
             ->first();
         if ($membership) {
             $membership->update(['leftAt' => now()]);
-            return redirect()->back()->with('success', 'Utilisateur retiré de la colocation avec succès');
+
+            // Transfer unpaid payments from the removed user to the owner (the auth user)
+            Payment::where('user_id', $user->id)
+                ->whereNull('payed_at')
+                ->whereHas('expense', function ($query) use ($colocation) {
+                    $query->where('colocation_id', $colocation->id);
+                })
+                ->update(['user_id' => Auth::id()]);
+            return redirect()->back()->with('success', 'Utilisateur retiré de la colocation avec succès. Ses paiements non réglés vous ont été transférés.');
         }
         return redirect()->back()->with('error', 'Utilisateur non trouvé dans la colocation');
     }

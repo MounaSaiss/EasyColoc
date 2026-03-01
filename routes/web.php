@@ -9,9 +9,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'banned'])->group(function () {
-    Route::get('/userDashboard', function () {
-        return view('user.userDashboard');
-    })->name('user.dashboard');
+    Route::get('/userDashboard', [\App\Http\Controllers\Admin\UserController::class, 'listAllExpenses'])->name('user.dashboard');
 
     Route::get('/adminDashboard', function () {
         return view('admin.adminDashboard');
