@@ -20,10 +20,8 @@ class ColocationController extends Controller
     public function index()
     {
         $colocations = Auth::user()->colocations;
-
         return view('colocation.index', compact('colocations'));
     }
-
     public function show(Colocation $colocation)
     {
         $membership = Membrship::where('colocation_id', $colocation->id)
@@ -98,8 +96,6 @@ class ColocationController extends Controller
             ->firstOrFail();
         $memberships->leftAt = now();
         $memberships->save();
-
-        // Check if the user has any unpaid payments in this colocation
         $hasUnpaidPayments = Payment::where('user_id', Auth::id())
             ->whereNull('payed_at')
             ->whereHas('expense', function ($query) use ($colocation) {

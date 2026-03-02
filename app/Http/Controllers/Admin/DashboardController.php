@@ -1,13 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Colocation;
 use App\Models\Payment;
-use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {

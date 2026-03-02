@@ -38,9 +38,7 @@ class InvitationController extends Controller
         if ($invitation->status !== 'refused') {
             $invitation->update(['status' => 'refused']);
         }
-
         $message = 'Invitation rejetée';
-
         return view('welcome', compact('message'));
     }
 }

@@ -4,19 +4,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Expense;
 use App\Models\Payment;
-
+use App\Http\Requests\ExpenxeRequest;
 class ExpenseController extends Controller
 {
-    public function store(Request $request)
+    public function store(ExpenxeRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'montant' => 'required|numeric',
-            'dateAchat' => 'required|date',
-            'user_idPayer' => 'required|integer|exists:users,id',
-            'colocation_id' => 'required|integer|exists:colocations,id',
-            'category_id' => 'required|integer',
-        ]);
+        $validatedData = $request->validated();
         $expense = Expense::create($validatedData);
         $montant = $expense->montant / $expense->colocation->users()->wherePivot('leftAt', null)->count();
         foreach($expense->colocation->users()->wherePivot('leftAt', null)->get() as $user){

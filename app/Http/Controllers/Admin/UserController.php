@@ -1,12 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Expense;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Payment;
 
 
 class UserController extends Controller
@@ -31,7 +30,7 @@ class UserController extends Controller
             ->orderBy('dateAchat', 'desc')
             ->get();
             
-        $unpaidAmount = \App\Models\Payment::where('user_id', $user->id)
+        $unpaidAmount =Payment::where('user_id', $user->id)
             ->whereNull('payed_at')
             ->sum('montant');
             
