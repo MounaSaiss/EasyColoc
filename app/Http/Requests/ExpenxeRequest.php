@@ -22,12 +22,24 @@ class ExpenxeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'montant' => 'required|numeric|min:0',
             'dateAchat' => 'required|date',
             'category_id' => 'required|exists:categories,id',
             'colocation_id' => 'required|exists:colocations,id',
-            'idPayer' => 'required|exists:users,id',
+            'user_idPayer' => 'required|exists:users,id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'Le titre est requis',
+            'montant.required' => 'Le montant est requis',
+            'dateAchat.required' => 'La date d\'achat est requise',
+            'category_id.required' => 'La catégorie est requise',
+            'colocation_id.required' => 'La colocation est requise',
+            'idPayer.required' => 'Le payeur est requis',
         ];
     }
 }

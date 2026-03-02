@@ -41,4 +41,5 @@ class Colocation extends Model
             ->wherePivot('role', 'owner')
             ->exists();
     }
+    
 }

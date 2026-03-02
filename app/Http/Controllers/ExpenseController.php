@@ -16,7 +16,7 @@ class ExpenseController extends Controller
             $expense->payments()->create([
                 'user_id' => $user->id,
                 'montant' => $montant,
-                'payed_at' => $user->id == $expense->payer->id ? now() : null,
+                'payed_at' => $user->id == $expense->user_idPayer ? now() : null,
             ]);
         }
 

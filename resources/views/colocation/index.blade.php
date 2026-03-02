@@ -73,7 +73,7 @@
             <div class="mt-auto bg-zinc-900 border border-zinc-800 p-3 rounded-xl">
                 <p class="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Réputation</p>
                 <div class="flex items-center justify-between">
-                    <span class="text-sm font-bold text-[#059669]">+{{ Auth::user()->reputation ?? 0 }} pts</span>
+                    <span class="text-sm font-bold text-[#059669]">{{ Auth::user()->reputation ?? 0 }} pts</span>
                 </div>
             </div>
 

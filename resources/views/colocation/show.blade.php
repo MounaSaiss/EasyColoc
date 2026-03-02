@@ -100,7 +100,13 @@
                 <div>
                     <h2 class="text-[10px] font-black text-[#059669] uppercase tracking-widest mb-1">Vue d'ensemble</h2>
                     <h1 class="text-xl font-extrabold tracking-tight uppercase">
-                        {{ $colocation->user?->name ?? 'Nom inconnu' }}</h1>
+                        <!-- Nom du propriétaire / utilisateur de la colocation -->
+                        {{ $colocation->user?->name ?? 'Nom inconnu' }}
+                    </h1>
+                    <p class="text-sm text-gray-500">
+                        <!-- Nom de l'utilisateur connecté -->
+                        Connecté : {{ Auth::user()->name }}
+                    </p>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -108,7 +114,6 @@
                         <form action="{{ route('colocations.cancel', $colocation) }}" method="POST" class="inline">
                             @csrf
                             @method('PATCH')
-
                             <button type="submit"
                                 class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-red-500/20">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +127,6 @@
                         <form action="{{ route('colocations.leave', $colocation) }}" method="POST" class="inline">
                             @csrf
                             @method('PATCH')
-
                             <button type="submit"
                                 class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 border border-red-500/20">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
