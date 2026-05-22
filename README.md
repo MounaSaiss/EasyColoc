@@ -1,59 +1,76 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EasyColoc — Shared Housing Management Platform
+ 
+**EasyColoc** is a web platform that simplifies life in shared housing (*colocation*). It solves the problem of managing shared expenses and roommate coordination by letting users create or join a colocation, track shared costs, split payments automatically, and invite new members — all from one place.
+ 
+---
+ 
+## 🛠️ Tech Stack
+ 
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 12 (PHP 8.2) |
+| Frontend | Blade Templates + Tailwind CSS v3 + Alpine.js |
+| Database | MySQL |
+| Email | Gmail SMTP (Laravel Mailable) |
+| Auth | Laravel Breeze |
+| Build Tool | Vite |
+| Containerization | Docker |
+ 
+---
+ 
+## ✨ Features
+ 
+### 👤 Authentication
+- Register and login (via Laravel Breeze)
+- First registered user automatically becomes **admin**
+- Profile editing and account deletion
+- Banned user middleware — banned users are blocked from all actions
+### 🏠 Colocation Management
+- Create a new colocation (one active colocation per user at a time)
+- View all your colocations (active and cancelled)
+- Cancel a colocation (owner only — all memberships are closed)
+- Leave a colocation with automatic **reputation scoring**:
+  - ✅ All payments settled → **+1 reputation**
+  - ❌ Unpaid balance on exit → **−1 reputation**
+- Owner can remove a member (their unpaid payments are transferred to the owner)
+### 📧 Invitations
+- Owner invites roommates by **email**
+- Invitation email is sent automatically via Gmail SMTP
+- Invited user can **accept** (joins the colocation) or **reject** the invitation
+- If the invited user has no account, they are redirected to register first
+### 💸 Expense & Payment Management
+- Add shared expenses with a category, amount, payer, and purchase date
+- Expenses are **automatically split equally** among all active members
+- The payer's share is marked as paid immediately
+- Other members can mark their share as paid
+- Delete expenses
+- View all unpaid payments per colocation
+### 🗂️ Categories
+- Create custom expense categories per colocation (e.g. Courses, Loyer, Électricité)
+- Category CRUD with policy-based authorization (owner only)
+### 🛡️ Admin Panel
+- View all registered users
+- Ban / unban users
+- Admin dashboard with platform overview
+---
+ 
+## 🗄️ Database Models
+ 
+`User`, `Colocation`, `Membership`, `Expense`, `Payment`, `Category`, `Invitation`, `Reputation`
+ 
+---
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🎯 Project Goal
+ 
+This is a **full-stack school / portfolio project** built to practice:
+- Full-stack Laravel development (MVC, middleware, policies, form requests, mailables)
+- Many-to-many relationships with pivot data (memberships with roles and timestamps)
+- Business logic: automatic expense splitting, payment tracking, reputation system
+- Email invitation flow with tokenized links
+- Role-based access control (admin vs user vs owner vs member)
+- Responsive UI with Tailwind CSS and Alpine.js
+---
+ 
+## 👩‍💻 Author
+ 
+**Mouna Saiss** — Computer Science Engineering Student
